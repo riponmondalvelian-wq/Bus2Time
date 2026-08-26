@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b6cff">
+<title>Bus2Time — Local Bus Timetable</title>
+<style>
+:root{--blue:#0b6cff;--blue2:#0757d9;--bg:#f4f7fb;--card:#fff;--text:#132238;--muted:#6b778c;--line:#e5eaf1;--green:#0c9b62;--red:#e24a4a}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+button,input,select{font:inherit}button{cursor:pointer;border:0}.app{max-width:520px;margin:auto;min-height:100vh;background:var(--bg)}
+header{background:linear-gradient(135deg,var(--blue),#2e83ff);color:#fff;padding:18px 18px 22px;border-radius:0 0 24px 24px;box-shadow:0 8px 25px #0b6cff22}
+.brand{display:flex;align-items:center;gap:10px}.logo{width:40px;height:40px;border-radius:13px;background:#fff;color:var(--blue);display:grid;place-items:center;font-size:21px;font-weight:900}.brand h1{font-size:22px;margin:0}.brand small{opacity:.85}
+.hero{margin-top:20px}.hero h2{margin:0;font-size:23px}.hero p{margin:5px 0 0;opacity:.86}
+.searchbox{background:#fff;border-radius:18px;padding:12px;margin-top:18px;box-shadow:0 10px 30px #001c4015;color:var(--text)}
+.field{display:flex;align-items:center;gap:10px;padding:12px;border-bottom:1px solid var(--line)}.field:last-of-type{border-bottom:0}.dot{width:11px;height:11px;border:3px solid var(--blue);border-radius:50%}.dot.red{border-color:#ef4e4e}.field input{width:100%;border:0;outline:0;background:transparent}.swap{float:right;background:#edf4ff;color:var(--blue);border-radius:50%;width:34px;height:34px;margin-top:-45px;margin-right:4px;font-size:18px}
+.primary{width:100%;background:var(--blue);color:#fff;padding:13px 16px;border-radius:12px;font-weight:800;margin-top:8px}.primary:hover{background:var(--blue2)}
+main{padding:16px}.section-title{display:flex;justify-content:space-between;align-items:center;margin:6px 0 10px}.section-title h3{margin:0}.link{color:var(--blue);font-weight:700;background:none}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:15px;margin-bottom:12px;box-shadow:0 5px 18px #001c4008}
+.bus-head{display:flex;gap:12px;align-items:center}.bus-icon{width:48px;height:48px;border-radius:14px;background:#eaf2ff;display:grid;place-items:center;font-size:25px}.bus-name{font-weight:850}.reg{color:var(--blue);font-weight:750;font-size:13px}.route{color:var(--muted);font-size:13px;margin-top:3px}.pill{display:inline-block;background:#eef6f1;color:var(--green);padding:4px 8px;border-radius:99px;font-size:12px;font-weight:800}
+.row{display:flex;justify-content:space-between;gap:12px;align-items:center}.time{font-size:18px;font-weight:900}.muted{color:var(--muted)}.small{font-size:12px}
+.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.quick button{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 4px;color:var(--text)}.quick span{display:block;font-size:20px;margin-bottom:5px}.quick b{font-size:11px}
+nav{position:sticky;bottom:0;background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:8px 5px calc(8px + env(safe-area-inset-bottom));z-index:10}nav button{background:none;color:var(--muted);padding:7px;font-size:11px}nav button.active{color:var(--blue);font-weight:900}nav span{display:block;font-size:19px;margin-bottom:2px}
+.page{display:none}.page.active{display:block}.back{background:none;color:var(--blue);font-weight:800;padding:0;margin-bottom:10px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;background:#eaf2ff;padding:4px;border-radius:12px;margin:12px 0}.tabs button{padding:10px;border-radius:9px;background:transparent;color:var(--muted);font-weight:800}.tabs button.active{background:#fff;color:var(--blue);box-shadow:0 2px 8px #001c4010}
+.table{overflow:auto}.table table{width:100%;border-collapse:collapse;background:#fff;border-radius:14px;overflow:hidden}.table th,.table td{padding:11px 8px;border-bottom:1px solid var(--line);text-align:left;font-size:13px}.table th{background:#f8fafc;color:var(--muted)}.up{color:var(--green);font-weight:850}.down{color:#e24a4a;font-weight:850}
+.timeline{position:relative;margin:10px 4px}.stop{display:grid;grid-template-columns:25px 1fr auto;gap:10px;position:relative;padding:8px 0}.stop:before{content:"";position:absolute;left:8px;top:24px;bottom:-9px;width:2px;background:#cfe0ff}.stop:last-child:before{display:none}.node{width:17px;height:17px;border-radius:50%;border:4px solid var(--blue);background:#fff;z-index:1}.stop b{font-size:14px}.stop .t{font-weight:850;color:var(--blue);font-size:12px}
+.form{display:grid;gap:10px}.form label{font-size:12px;font-weight:800;color:var(--muted)}.form input,.form select{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;background:#fff;outline:0}.form input:focus,.form select:focus{border-color:var(--blue)}
+.admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.admin-action{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px;text-align:left}.admin-action strong{display:block;margin-top:5px}.admin-action span{font-size:22px}
+.badge{background:#edf4ff;color:var(--blue);padding:5px 8px;border-radius:99px;font-size:11px;font-weight:850}
+.empty{text-align:center;padding:30px;color:var(--muted)}.danger{background:#fff0f0;color:var(--red);padding:9px 12px;border-radius:9px;font-weight:800}.secondary{background:#eef3f9;color:var(--text);padding:10px 12px;border-radius:9px;font-weight:800}
+.toast{position:fixed;left:50%;bottom:75px;transform:translateX(-50%) translateY(20px);background:#12233a;color:#fff;padding:11px 16px;border-radius:10px;opacity:0;pointer-events:none;transition:.25s;z-index:50;font-size:13px}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media(min-width:700px){body{padding:25px}.app{border-radius:24px;overflow:hidden;box-shadow:0 15px 60px #001c4020}}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="brand"><div class="logo">🚌</div><div><h1>Bus2Time</h1><small>Local bus timetable</small></div></div>
+  <div class="hero"><h2>Find your bus</h2><p>Check routes and timings in seconds.</p></div>
+  <div class="searchbox">
+    <div class="field"><span class="dot"></span><input id="from" list="stops" placeholder="Starting point"></div>
+    <button class="swap" onclick="swapPlaces()">↕</button>
+    <div class="field"><span class="dot red"></span><input id="to" list="stops" placeholder="Destination"></div>
+    <datalist id="stops"></datalist>
+    <button class="primary" onclick="searchBuses()">🔎 Search Buses</button>
+  </div>
+</header>
+
+<main>
+<section id="home" class="page active">
+  <div class="section-title"><h3>Quick actions</h3></div>
+  <div class="quick">
+    <button onclick="showPage('buses')"><span>🚌</span><b>All Buses</b></button>
+    <button onclick="showPage('routes')"><span>🗺️</span><b>Routes</b></button>
+    <button onclick="showPage('favourites')"><span>❤️</span><b>Favourites</b></button>
+    <button onclick="showPage('admin')"><span>⚙️</span><b>Admin</b></button>
+  </div>
+  <div class="section-title" style="margin-top:22px"><h3>Featured bus</h3><button class="link" onclick="showBus(0)">View</button></div>
+  <div id="featured"></div>
+</section>
+
+<section id="buses" class="page">
+  <button class="back" onclick="showPage('home')">← Home</button>
+  <div class="section-title"><h3>All Buses</h3><span class="badge" id="busCount"></span></div>
+  <div id="busList"></div>
+</section>
+
+<section id="routes" class="page">
+  <button class="back" onclick="showPage('home')">← Home</button>
+  <div class="section-title"><h3>Routes</h3></div>
+  <div id="routeList"></div>
+</section>
+
+<section id="favourites" class="page">
+  <button class="back" onclick="showPage('home')">← Home</button>
+  <div class="section-title"><h3>Favourites</h3></div>
+  <div id="favList"></div>
+</section>
+
+<section id="details" class="page">
+  <button class="back" onclick="showPage('buses')">← Back</button>
+  <div id="detailsContent"></div>
+</section>
+
+<section id="admin" class="page">
+  <button class="back" onclick="showPage('home')">← Home</button>
+  <div class="section-title"><h3>Admin Panel</h3><span class="badge">V1 Local</span></div>
+  <div class="card"><b>Manage your timetable</b><p class="muted small">Add buses and update stop times without editing app code. V1 stores data on this device.</p></div>
+  <div class="admin-grid">
+    <button class="admin-action" onclick="openAddBus()"><span>➕</span><strong>Add Bus</strong><small class="muted">Create a new bus</small></button>
+    <button class="admin-action" onclick="openAddStop()"><span>🚏</span><strong>Add Stoppage</strong><small class="muted">Add a stop + times</small></button>
+    <button class="admin-action" onclick="exportData()"><span>📤</span><strong>Export Data</strong><small class="muted">Backup JSON</small></button>
+    <button class="admin-action" onclick="importData()"><span>📥</span><strong>Import Data</strong><small class="muted">Restore JSON</small></button>
+  </div>
+  <div class="section-title" style="margin-top:20px"><h3>Manage buses</h3></div>
+  <div id="adminBusList"></div>
+</section>
+
+<section id="editor" class="page">
+  <button class="back" onclick="showPage('admin')">← Admin</button>
+  <div class="section-title"><h3 id="editorTitle">Add Bus</h3></div>
+  <div class="card"><div class="form">
+    <div><label>Bus name</label><input id="eName" placeholder="e.g. RAJU TRAVELS"></div>
+    <div><label>Registration number</label><input id="eReg" placeholder="e.g. WB51A1165"></div>
+    <div><label>Route</label><input id="eRoute" placeholder="e.g. Nabadwip → Tarapith"></div>
+    <div><label>Via</label><input id="eVia" placeholder="Major route points"></div>
+    <button class="primary" onclick="saveBus()">Save Bus</button>
+  </div></div>
+  <div id="stopEditor"></div>
+</section>
+</main>
+
+<nav>
+  <button class="active" data-page="home" onclick="showPage('home')"><span>⌂</span>Home</button>
+  <button data-page="buses" onclick="showPage('buses')"><span>🔎</span>Search</button>
+  <button data-page="favourites" onclick="showPage('favourites')"><span>♥</span>Favourites</button>
+  <button data-page="admin" onclick="showPage('admin')"><span>☷</span>More</button>
+</nav>
+</div>
+<div id="toast" class="toast"></div>
+
+<script>
+const initialData=[{
+ id:"raju-wb51a1165",name:"RAJU TRAVELS",reg:"WB51A1165",route:"Nabadwip → Tarapith",
+ via:"Nabadwip Bus Stand, Hematpur Mor, Parulia, Purbasthali, Jamalpur, Chhatni, Dainhat Mor, Katwa, Ketugram, Pachundi, Nirol, Komarpur, Kandara, Futishanko, Kirnahar (Choumotha Mor), Akupurchati, Laghata, Labpur, Chouhatta, Ahmedpur, Purandarpur, Suri, Mohammad Bazar, Mallarpur, Rampurhat, Tarapith",
+ stops:[
+ ["Nabadwip","4:40 AM","6:05 PM"],["Hematpur","",""],["Parulia","",""],["Katwa","6:10 AM","5:20 PM"],["Ketugram","",""],["Pachundi","",""],["Futishanko","",""],["Kirnahar","7:45 AM","3:45 PM"],["Laghata","",""],["Labpur","",""],["Purandarpur","",""],["Suri","9:20 AM","2:00 PM"],["Mohammad Bazar","",""],["Mallarpur","",""],["Rampurhat","10:10 AM","12:40 PM"],["Tarapith","10:50 AM","12:00 PM"]
+]}];
+
+let buses=JSON.parse(localStorage.getItem("bus2time_data")||"null")||initialData;
+let favs=JSON.parse(localStorage.getItem("bus2time_favs")||"[]");
+let editing=-1;
+
+function save(){localStorage.setItem("bus2time_data",JSON.stringify(buses)); renderAll()}
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function showPage(id){document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===id)); if(id==="admin")renderAdmin(); if(id==="buses")renderBuses(); if(id==="routes")renderRoutes(); if(id==="favourites")renderFavs(); scrollTo(0,0)}
+function toast(t){let x=document.getElementById("toast");x.textContent=t;x.classList.add("show");setTimeout(()=>x.classList.remove("show"),1800)}
+function swapPlaces(){let a=from.value;from.value=to.value;to.value=a}
+function allStops(){return [...new Set(buses.flatMap(b=>b.stops.map(s=>s[0])))].sort()}
+function updateStops(){stops.innerHTML=allStops().map(s=>`<option value="${esc(s)}">`).join("")}
+function busCard(b,i){let fav=favs.includes(b.id);return `<div class="card" onclick="showBus(${i})"><div class="bus-head"><div class="bus-icon">🚌</div><div style="flex:1"><div class="bus-name">${esc(b.name)}</div><div class="reg">${esc(b.reg)}</div><div class="route">${esc(b.route)}</div></div><button onclick="event.stopPropagation();toggleFav('${b.id}')">${fav?"❤️":"🤍"}</button></div><div class="row" style="margin-top:13px"><span class="pill">${esc(b.stops[0][0])} • ${esc(b.stops[b.stops.length-1][0])}</span><span class="small muted">${b.stops.length} stops</span></div></div>`}
+function renderHome(){featured.innerHTML=buses.length?busCard(buses[0],0):'<div class="empty">No buses yet.</div>'}
+function renderBuses(){busCount.textContent=buses.length+" bus"+(buses.length!==1?"es":"");busList.innerHTML=buses.map(busCard).join("")||'<div class="empty">No buses found.</div>'}
+function renderRoutes(){routeList.innerHTML=buses.map((b,i)=>`<div class="card" onclick="showBus(${i})"><div class="row"><b>${esc(b.stops[0][0])} → ${esc(b.stops.at(-1)[0])}</b><span class="badge">${b.stops.length} stops</span></div><p class="muted small">${esc(b.name)} • ${esc(b.reg)}</p></div>`).join("")}
+function renderFavs(){let arr=buses.map((b,i)=>[b,i]).filter(([b])=>favs.includes(b.id));favList.innerHTML=arr.length?arr.map(([b,i])=>busCard(b,i)).join(""):'<div class="empty">No favourites yet.<br>Tap 🤍 on a bus to save it.</div>'}
+function toggleFav(id){favs=favs.includes(id)?favs.filter(x=>x!==id):[...favs,id];localStorage.setItem("bus2time_favs",JSON.stringify(favs));renderAll();toast(favs.includes(id)?"Added to favourites":"Removed from favourites")}
+function showBus(i){let b=buses[i];if(!b)return;detailsContent.innerHTML=`<div class="card"><div class="bus-head"><div class="bus-icon">🚌</div><div><div class="bus-name">${esc(b.name)}</div><div class="reg">${esc(b.reg)}</div><div class="route">${esc(b.route)}</div></div></div><p class="small muted">Via: ${esc(b.via)}</p></div>
+<div class="tabs"><button id="upTab" class="active" onclick="setJourney('up',${i})">UP JOURNEY</button><button id="downTab" onclick="setJourney('down',${i})">DOWN JOURNEY</button></div>
+<div id="journeyTable"></div><div class="card" style="margin-top:12px"><b>Route & Stops</b><div class="timeline">${b.stops.map(s=>`<div class="stop"><div class="node"></div><div><b>${esc(s[0])}</b></div><div class="t">${esc(s[1]||"--:--")} / ${esc(s[2]||"--:--")}</div></div>`).join("")}</div></div>`;
+showPage("details");setJourney("up",i)}
+function setJourney(dir,i){document.getElementById("upTab").classList.toggle("active",dir==="up");document.getElementById("downTab").classList.toggle("active",dir==="down");let b=buses[i];journeyTable.innerHTML=`<div class="table"><table><thead><tr><th>#</th><th>Stoppage</th><th>${dir==="up"?"Up":"Down"} Time</th></tr></thead><tbody>${b.stops.map((s,n)=>`<tr><td>${n+1}</td><td>${esc(s[0])}</td><td class="${dir==="up"?"up":"down"}">${esc(dir==="up"?(s[1]||"--:--"):(s[2]||"--:--"))}</td></tr>`).join("")}</tbody></table></div>`}
+function searchBuses(){let f=from.value.trim().toLowerCase(),t=to.value.trim().toLowerCase();let matches=buses.map((b,i)=>[b,i]).filter(([b])=>{let names=b.stops.map(s=>s[0].toLowerCase());let fi=f?names.indexOf(f):-1,ti=t?names.indexOf(t):-1;return (!f||fi>=0)&&(!t||ti>=0)&&(f&&t?fi<ti:true)});showPage("buses");busList.innerHTML=matches.length?matches.map(([b,i])=>busCard(b,i)).join(""):`<div class="empty">No bus found for <b>${esc(from.value||"anywhere")}</b> → <b>${esc(to.value||"anywhere")}</b>.</div>`}
+function renderAdmin(){adminBusList.innerHTML=buses.map((b,i)=>`<div class="card"><div class="row"><div><b>${esc(b.name)}</b><div class="reg">${esc(b.reg)}</div><div class="small muted">${esc(b.route)}</div></div><span class="badge">${b.stops.length} stops</span></div><div style="display:flex;gap:8px;margin-top:12px"><button class="secondary" onclick="editBus(${i})">✏️ Edit</button><button class="secondary" onclick="openAddStop(${i})">🚏 Add Stop</button><button class="danger" onclick="deleteBus(${i})">Delete</button></div></div>`).join("")||'<div class="empty">No buses.</div>'}
+function openAddBus(){editing=-1;editorTitle.textContent="Add Bus";eName.value="";eReg.value="";eRoute.value="";eVia.value="";stopEditor.innerHTML="";showPage("editor")}
+function editBus(i){editing=i;let b=buses[i];editorTitle.textContent="Edit Bus";eName.value=b.name;eReg.value=b.reg;eRoute.value=b.route;eVia.value=b.via;renderStopEditor(i);showPage("editor")}
+function saveBus(){let name=eName.value.trim(),reg=eReg.value.trim(),route=eRoute.value.trim(),via=eVia.value.trim();if(!name||!reg||!route){toast("Please fill bus name, registration and route");return}if(editing<0){buses.push({id:reg.toLowerCase().replace(/[^a-z0-9]+/g,"-"),name,reg,route,via,stops:[]});toast("Bus added")}else{Object.assign(buses[editing],{name,reg,route,via});toast("Bus updated")}save();showPage("admin")}
+function renderStopEditor(i){let b=buses[i];stopEditor.innerHTML=`<div class="section-title" style="margin-top:20px"><h3>Stoppages & Times</h3><button class="link" onclick="addStopRow(${i})">+ Add</button></div><div id="stopRows">${b.stops.map((s,n)=>stopRow(i,n,s)).join("")}</div>`}
+function stopRow(i,n,s){return `<div class="card"><div class="form"><label>Stoppage ${n+1}</label><input id="sn_${n}" value="${esc(s[0])}" placeholder="Stop name"><div class="row"><div style="flex:1"><label>Up time</label><input id="su_${n}" value="${esc(s[1])}" placeholder="4:40 AM"></div><div style="flex:1"><label>Down time</label><input id="sd_${n}" value="${esc(s[2])}" placeholder="6:05 PM"></div></div><button class="danger" onclick="removeStop(${i},${n})">Remove stop</button></div></div>`}
+function addStopRow(i){buses[i].stops.push(["","",""]);save();editing=i;renderStopEditor(i);showPage("editor")}
+function removeStop(i,n){buses[i].stops.splice(n,1);save();editing=i;renderStopEditor(i)}
+function openAddStop(i=0){if(!buses.length){toast("Add a bus first");return}editing=i;editBus(i);setTimeout(()=>{addStopRow(i)},50)}
+function syncStops(i){let b=buses[i];b.stops=b.stops.map((s,n)=>[document.getElementById("sn_"+n)?.value||"",document.getElementById("su_"+n)?.value||"",document.getElementById("sd_"+n)?.value||""]);localStorage.setItem("bus2time_data",JSON.stringify(buses))}
+function deleteBus(i){if(confirm("Delete "+buses[i].name+"?")){buses.splice(i,1);save();toast("Bus deleted")}}
+function exportData(){let blob=new Blob([JSON.stringify(buses,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="bus2time-backup.json";a.click();toast("Backup exported")}
+function importData(){let inp=document.createElement("input");inp.type="file";inp.accept=".json";inp.onchange=()=>{let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!Array.isArray(x))throw 0;buses=x;save();toast("Data imported")}catch(e){toast("Invalid backup file")}};r.readAsText(inp.files[0])};inp.click()}
+document.addEventListener("click",e=>{if(e.target.matches("#editor .primary"))setTimeout(()=>{if(editing>=0){syncStops(editing);renderAll()}},50)})
+function renderAll(){updateStops();renderHome();renderBuses();renderRoutes();renderFavs();renderAdmin()}
+renderAll();
+</script>
+</body>
+</html>
